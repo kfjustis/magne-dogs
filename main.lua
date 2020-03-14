@@ -1,3 +1,5 @@
+local class = require 'external.middleclass.middleclass'
+
 function love.load()
 end
 
