@@ -1,6 +1,6 @@
 function love.conf(t)
    t.version = "11.3"
-   t.console = false
+   t.console = true
    t.accelerometerjoystick = false
    t.externalstorage = false
    t.gammacorrect = true

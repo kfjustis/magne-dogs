@@ -4,9 +4,9 @@ local Player = class('Player')
 
 function Player:initialize(input)
    --Init player variables.
-   self.x = 200
-   self.y = 200
-   self.speed = 5
+   self.x = 400
+   self.y = 300
+   self.speed = 3
    self.size = 15
 
    --Bind player inputs.
@@ -18,9 +18,10 @@ function Player:initialize(input)
    input:bind('left', 'left')
    input:bind('d', 'right')
    input:bind('right', 'right')
+   input:bind('lshift', 'sprint')
 end
 
-function Player:update()
+function Player:update(dt)
    if input:down('up') then
       self.y = self.y - self.speed
    end
@@ -32,6 +33,12 @@ function Player:update()
    end
    if input:down('right') then
       self.x = self.x + self.speed
+   end
+   if input:pressed('sprint') then
+      self.speed = self.speed * 3
+   end
+   if input:released('sprint') then
+      self.speed = 3
    end
 end
 
