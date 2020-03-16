@@ -145,11 +145,22 @@ function Input:sequence(...)
     end
 end
 
-local key_to_button = {mouse1 = '1', mouse2 = '2', mouse3 = '3', mouse4 = '4', mouse5 = '5'} 
+local key_to_button = {mouse1 = '1', mouse2 = '2', mouse3 = '3', mouse4 = '4', mouse5 = '5'}
 local gamepad_to_button = {fdown = 'a', fup = 'y', fleft = 'x', fright = 'b', back = 'back', guide = 'guide', start = 'start',
                            leftstick = 'leftstick', rightstick = 'rightstick', l1 = 'leftshoulder', r1 = 'rightshoulder',
                            dpup = 'dpup', dpdown = 'dpdown', dpleft = 'dpleft', dpright = 'dpright'}
 local axis_to_button = {leftx = 'leftx', lefty = 'lefty', rightx = 'rightx', righty = 'righty', l2 = 'triggerleft', r2 = 'triggerright'}
+
+-- in LÖVE 11.0, love.keyboard.isDown(key) raises an error when 'key' is not a KeyConstant
+-- true if key corresponds to a gamepad button or axis
+local function from_gamepad(key)
+    return gamepad_to_button[key] ~= nil or axis_to_button[key] ~= nil
+end
+
+-- true if key corresponds to a mouse button
+local function from_mouse(key)
+    return key_to_button[key] ~= nil
+end
 
 function Input:down(action, interval, delay)
     if action and delay and interval then
@@ -174,10 +185,14 @@ function Input:down(action, interval, delay)
 
     elseif action and not interval and not delay then
         for _, key in ipairs(self.binds[action]) do
-            if (love.keyboard.isDown(key) or love.mouse.isDown(key_to_button[key] or 0)) then
+            if from_mouse(key) then
+                if love.mouse.isDown(key_to_button[key] or 0) then
+                    return true
+                end
+            elseif not from_gamepad(key) and love.keyboard.isDown(key) then
                 return true
             end
-            
+
             -- Supports only 1 gamepad, add more later...
             if self.joysticks[1] then
                 if axis_to_button[key] then
@@ -191,6 +206,34 @@ function Input:down(action, interval, delay)
         end
     end
 end
+
+
+local axisDefinitions = {}
+
+function Input:defineAxis(actionAxis, actionMin, actionMax, threshold)
+    axisDefinitions[actionAxis] = { actionMin, actionMax, threshold or 0 }
+end
+
+function Input:axis(actionAxis)
+    local definition = axisDefinitions[actionAxis]
+
+    if self:down(definition[1]) then return -1 end
+    if self:down(definition[2]) then return 1 end
+
+    local raw = self:down(actionAxis) or 0
+    if math.abs(raw) < definition[3] then raw = 0 end
+    return raw
+end
+
+function Input:rawAxis(actionAxis)
+    local definition = axisDefinitions[actionAxis]
+
+    if self:down(definition[1]) then return -1 end
+    if self:down(definition[2]) then return 1 end
+
+    return self:down(actionAxis) or 0
+end
+
 
 function Input:unbind(key)
     for action, keys in pairs(self.binds) do
@@ -224,11 +267,11 @@ function Input:update()
 
     for k, v in pairs(self.repeat_state) do
         if v then
-            v.pressed = false 
+            v.pressed = false
             local t = love.timer.getTime() - v.pressed_time
-            if v.delay_stage then 
-                if t > v.delay then 
-                    v.pressed = true 
+            if v.delay_stage then
+                if t > v.delay then
+                    v.pressed = true
                     v.pressed_time = love.timer.getTime()
                     v.delay_stage = false
                 end
@@ -275,7 +318,7 @@ local button_to_gamepad = {a = 'fdown', y = 'fup', x = 'fleft', b = 'fright', ba
                            dpup = 'dpup', dpdown = 'dpdown', dpleft = 'dpleft', dpright = 'dpright'}
 
 function Input:gamepadpressed(joystick, button)
-    self.state[button_to_gamepad[button]] = true 
+    self.state[button_to_gamepad[button]] = true
 end
 
 function Input:gamepadreleased(joystick, button)
