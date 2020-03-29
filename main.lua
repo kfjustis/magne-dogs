@@ -4,12 +4,14 @@ local Background = require 'src.background'
 local Player = require 'src.player'
 local Dog = require 'src.dog'
 
+local NUM_DOGS = 1
+
 local dogs_saved = 0
 local dogs = {}
 
 function generate_dogs()
-   local i = 0
-   while (i < 30)
+   local i = 1
+   while (i <= NUM_DOGS)
    do
       table.insert(dogs, Dog:new())
       i = i + 1
@@ -36,8 +38,8 @@ function love.draw()
    background:draw()
 
    -- Draw the dogs.
-   local i = 0
-   while (i < 30)
+   local i = 1
+   while (i <= NUM_DOGS)
    do
       local dog = dogs[i]
       if dog then
