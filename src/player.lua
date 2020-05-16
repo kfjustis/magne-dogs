@@ -81,4 +81,12 @@ function Player:draw()
       self.item:getHeight()/2)
 end
 
+function Player:getPosition()
+   return self.x, self.y
+end
+
+function Player:getOriginPosition()
+   return self.origin_x, self.origin_y
+end
+
 return Player
