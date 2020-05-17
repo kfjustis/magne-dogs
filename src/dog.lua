@@ -12,6 +12,7 @@ function Dog:initialize()
    self.image = love.graphics.newImage("res/sprites/lilly.png")
    self.scale = 1
    self.vac_speed = 5
+   self.can_remove = false
 
    --hitbox detection
    self.min_x = self.x
@@ -32,8 +33,6 @@ function Dog:initialize()
 end
 
 function Dog:update(dt)
-   mouse_x, mouse_y = love.mouse.getPosition()
-
    --update dog origin
    self.min_x = self.x
    self.max_x = self.x + self.image:getWidth()
@@ -43,6 +42,9 @@ function Dog:update(dt)
 
    self.origin_x = self.max_x - ((self.max_x - self.min_x) / 2)
    self.origin_y = self.max_y - ((self.max_y - self.min_y) / 2)
+
+   --update mouse
+   mouse_x, mouse_y = love.mouse.getPosition()
 
    --check if dog is hovered over
    if (mouse_x > self.min_x and mouse_x < self.max_x) and
@@ -55,7 +57,9 @@ function Dog:update(dt)
    --check if dog is being clicked
    if self.hovered_over and love.mouse.isDown(1) then
       self.is_clicked = true
-   else
+   end
+
+   if self.is_clicked and not love.mouse.isDown(1) then
       self.is_clicked = false
    end
 end
@@ -70,9 +74,6 @@ function Dog:draw()
                                       self.max_y - self.min_y)
    end
 
-   if self.hovered_over then
-      love.graphics.setColor(0, 0, 1, 1)
-   end
    love.graphics.draw(self.image,
                       self.x, self.y,
                       self.rotation,
@@ -90,23 +91,41 @@ end
 function Dog:moveDogTowards(target)
    tx, ty = target:getPosition()
    tox, toy = target:getOriginPosition()
+   buffer = self.vac_speed + 5
 
-   if tox == self.origin_x and 
-       toy == self.origin_y then
+   if (self.origin_x < (tox + buffer) and 
+        self.origin_y < (tox + buffer)) or
+      (self.origin_x < (tox - buffer) and
+        self.origin_y < (toy - buffer)) or
+      (self.origin_x == (tox + buffer) and
+        self.origin_y == (toy + buffer)) or
+      (self.origin_x == (tox - buffer) and
+        self.origin_y == (toy - buffer)) or
+      (self.origin_x == tox and
+        self.origin_y == toy) then
+      self.can_remove = true
       return
    end
 
-   if tox < self.origin_x then
-      self.x = self.x - self.vac_speed
-   elseif tox > self.origin_x then
-      self.x = self.x + self.vac_speed
+   if tox ~= self.origin_x then
+      if self.origin_x > tox then
+         self.x = self.x - self.vac_speed
+      elseif self.origin_x < tox then
+         self.x = self.x + self.vac_speed
+      end
    end
 
-   if toy < self.origin_y then
-      self.y = self.y - self.vac_speed
-   elseif toy > self.origin_y then
-      self.y = self.y + self.vac_speed
+   if toy ~= self.origin_y then
+      if toy < self.origin_y then
+         self.y = self.y - self.vac_speed
+      elseif toy > self.origin_y then
+         self.y = self.y + self.vac_speed
+      end
    end
+end
+
+function Dog:canRemove()
+   return self.can_remove
 end
 
 return Dog

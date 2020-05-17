@@ -4,7 +4,7 @@ local Background = require 'src.background'
 local Player = require 'src.player'
 local Dog = require 'src.dog'
 
-local NUM_DOGS = 10
+local NUM_DOGS = 30
 
 local dogs_saved = 0
 local dogs = {}
@@ -25,8 +25,21 @@ function update_dogs()
       local dog = dogs[i]
       if dog then
          dog:update()
+         local was_moving = false
          if dog:isClicked() then
             dog:moveDogTowards(player)
+            was_moving = true
+         elseif was_moving then
+            if love.mouse.isDown(1) then
+               dog:moveDogTowards(player)
+            else
+               was_moving = false
+            end
+         end
+         if dog:canRemove() then
+            table.remove(dogs, i)
+            dog = nil
+            dogs_saved = dogs_saved + 1
          end
       end
       i = i + 1
@@ -46,27 +59,26 @@ function draw_dogs()
 end
 
 function love.load()
+   love.graphics.setDefaultFilter("nearest", "nearest", 1)
    input = Input()
    player = Player:new(input)
    background = Background:new(camera)
-   love.graphics.setDefaultFilter("nearest", "nearest", 1)
    generate_dogs()
 end
 
 function love.update(dt)
    background:update(dt)
-   update_dogs()
    player:update(dt)
+   update_dogs()
 end
 
 function love.draw()
    --Set intial bg layer color.
    love.graphics.setColor(1,1,1,1)
    love.graphics.setBackgroundColor(102/255, 232/255, 137/255, 1)
+
    background:draw()
-
    draw_dogs()
-
    player:draw()
 
    love.graphics.setColor(0,0,0,1)

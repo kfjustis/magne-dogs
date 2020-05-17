@@ -65,7 +65,6 @@ end
 
 function Player:draw()
    love.graphics.setColor(201/255, 81/255, 120/255, 1)
-   love.graphics.rectangle("fill", self.x, self.y, self.size, self.size)
    if input:down('shoot') then
       love.graphics.circle("line", self.origin_x, self.origin_y, 30)
       love.graphics.line(self.origin_x, self.origin_y, self.mouse_x, self.mouse_y)
@@ -75,8 +74,8 @@ function Player:draw()
       self.origin_x,
       self.origin_y,
       -self.theta_magnet,
-      1,
-      1,
+      3,
+      3,
       0,
       self.item:getHeight()/2)
 end
