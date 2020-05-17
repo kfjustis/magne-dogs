@@ -59,7 +59,7 @@ function Dog:update(dt)
       self.is_clicked = true
    end
 
-   if self.is_clicked and not love.mouse.isDown(1) then
+   if not love.mouse.isDown(1) then
       self.is_clicked = false
    end
 end
@@ -89,36 +89,37 @@ function Dog:isClicked()
 end
 
 function Dog:moveDogTowards(target)
-   tx, ty = target:getPosition()
-   tox, toy = target:getOriginPosition()
-   buffer = self.vac_speed + 5
+   local buffer = 10
+   local tox, toy = target:getOriginPosition()
+   local t_min_x = tox - buffer
+   local t_max_x = tox + buffer
+   local t_min_y = toy - buffer
+   local t_max_y = toy + buffer
+   local x_in_range = false
+   local y_in_range = false
 
-   if (self.origin_x < (tox + buffer) and 
-        self.origin_y < (tox + buffer)) or
-      (self.origin_x < (tox - buffer) and
-        self.origin_y < (toy - buffer)) or
-      (self.origin_x == (tox + buffer) and
-        self.origin_y == (toy + buffer)) or
-      (self.origin_x == (tox - buffer) and
-        self.origin_y == (toy - buffer)) or
-      (self.origin_x == tox and
-        self.origin_y == toy) then
-      self.can_remove = true
-      return
+   if self.origin_x > t_min_x and self.origin_x < t_max_x then
+      x_in_range = true
    end
 
-   if tox ~= self.origin_x then
+   if self.origin_y > t_min_y and self.origin_y < t_max_y then
+      y_in_range = true
+   end
+
+   if x_in_range and y_in_range then
+      self.can_remove = true
+   end
+
+   if not self.can_remove then
       if self.origin_x > tox then
          self.x = self.x - self.vac_speed
       elseif self.origin_x < tox then
          self.x = self.x + self.vac_speed
       end
-   end
 
-   if toy ~= self.origin_y then
-      if toy < self.origin_y then
+      if self.origin_y > toy then
          self.y = self.y - self.vac_speed
-      elseif toy > self.origin_y then
+      elseif self.origin_y < toy then
          self.y = self.y + self.vac_speed
       end
    end

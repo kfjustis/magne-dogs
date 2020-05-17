@@ -9,6 +9,35 @@ local NUM_DOGS = 30
 local dogs_saved = 0
 local dogs = {}
 
+function love.load()
+   love.graphics.setDefaultFilter("nearest", "nearest", 1)
+   input = Input()
+   player = Player:new(input)
+   background = Background:new(camera)
+   generate_dogs()
+end
+
+function love.update(dt)
+   background:update(dt)
+   player:update(dt)
+   update_dogs()
+end
+
+function love.draw()
+   --Set intial bg layer color.
+   love.graphics.setColor(1,1,1,1)
+   love.graphics.setBackgroundColor(102/255, 232/255, 137/255, 1)
+
+   background:draw()
+   draw_dogs()
+   player:draw()
+
+   love.graphics.setColor(0,0,0,1)
+   love.graphics.print("Dogs saved: " .. dogs_saved, 10, 10, 0, 2, 2, 0, 0, 0, 0)
+   love.graphics.setColor(1,1,1,1)
+   love.graphics.print("Dogs saved: " .. dogs_saved, 9, 9, 0, 2, 2, 0, 0, 0, 0)
+end
+
 function generate_dogs()
    local i = 1
    while (i <= NUM_DOGS)
@@ -25,7 +54,6 @@ function update_dogs()
       local dog = dogs[i]
       if dog then
          dog:update()
-         local was_moving = false
          if dog:isClicked() then
             dog:moveDogTowards(player)
             was_moving = true
@@ -56,33 +84,4 @@ function draw_dogs()
       end
       i = i + 1
    end
-end
-
-function love.load()
-   love.graphics.setDefaultFilter("nearest", "nearest", 1)
-   input = Input()
-   player = Player:new(input)
-   background = Background:new(camera)
-   generate_dogs()
-end
-
-function love.update(dt)
-   background:update(dt)
-   player:update(dt)
-   update_dogs()
-end
-
-function love.draw()
-   --Set intial bg layer color.
-   love.graphics.setColor(1,1,1,1)
-   love.graphics.setBackgroundColor(102/255, 232/255, 137/255, 1)
-
-   background:draw()
-   draw_dogs()
-   player:draw()
-
-   love.graphics.setColor(0,0,0,1)
-   love.graphics.print("Dogs saved: " .. dogs_saved, 10, 10, 0, 2, 2, 0, 0, 0, 0)
-   love.graphics.setColor(1,1,1,1)
-   love.graphics.print("Dogs saved: " .. dogs_saved, 9, 9, 0, 2, 2, 0, 0, 0, 0)
 end

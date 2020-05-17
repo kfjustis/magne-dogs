@@ -66,7 +66,6 @@ end
 function Player:draw()
    love.graphics.setColor(201/255, 81/255, 120/255, 1)
    if input:down('shoot') then
-      love.graphics.circle("line", self.origin_x, self.origin_y, 30)
       love.graphics.line(self.origin_x, self.origin_y, self.mouse_x, self.mouse_y)
    end
 
