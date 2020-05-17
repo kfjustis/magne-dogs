@@ -3,8 +3,8 @@ local class = require 'external.middleclass.middleclass'
 local Dog = class('Dog')
 
 function Dog:initialize()
-   self.x = love.math.random(200, 600)
-   self.y = love.math.random(100, 500)
+   self.x = love.math.random(0, 450)
+   self.y = love.math.random(0, 500)
    self.rotation = 0
    self.r = love.math.random()
    self.g = love.math.random()

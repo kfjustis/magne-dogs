@@ -56,13 +56,6 @@ function update_dogs()
          dog:update()
          if dog:isClicked() then
             dog:moveDogTowards(player)
-            was_moving = true
-         elseif was_moving then
-            if love.mouse.isDown(1) then
-               dog:moveDogTowards(player)
-            else
-               was_moving = false
-            end
          end
          if dog:canRemove() then
             table.remove(dogs, i)
